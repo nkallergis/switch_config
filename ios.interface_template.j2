@@ -1,0 +1,60 @@
+
+interface {{if_name}}
+{%- if if_use|lower == 'uplink' %}
+ description trunk to {{if_info2}}
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast disable
+ spanning-tree bpduguard disable
+ spanning-tree link-type point-to-point
+ storm-control broadcast level 0.01
+ storm-control action trap
+ switchport trunk allowed vlan {{if_info1}}
+{% elif if_use|lower == 'server' %}
+ description {{description}}
+ speed 1000
+ duplex full
+ switchport mode access
+ switchport access vlan {{if_info1}}
+ switchport nonegotiate
+ no cdp enable
+ no shutdown
+{% elif if_use|lower == 'user' %}
+ description {{description}}
+ switchport mode access
+ switchport access vlan  {{if_info1}}
+ switchport nonegotiate
+ no cdp enable
+ switchport port-security
+ switchport port-security max 1
+{%- if if_info2 %}
+ switchport port-security mac {{if_info2}}
+ switchport port-security aging type absolute
+{%- else %}
+ switchport port-security aging time 1
+ switchport port-security aging type inactivity
+{%- endif %}
+ switchport port-security violation restrict
+ storm-control broadcast level 0.01
+ storm-control action trap
+ no logging event link-status
+ no snmp trap link-status
+ no shutdown
+{% elif if_use|lower == 'unused' %}
+ description {{description}}
+ switchport mode access
+ switchport access vlan  999
+ switchport nonegotiate
+ no cdp enable
+ switchport port-security
+ switchport port-security max 1
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ storm-control broadcast level 0.01
+ storm-control action trap
+ no logging event link-status
+ no snmp trap link-status
+ shutdown
+{% endif -%}
+!

@@ -1,0 +1,16 @@
+Configuration;full;(full or interfaces-only);;
+Hostname;switchB52;;;
+VTP mode;Server;;;
+Management IP;172.17.125.42;;;
+Software;NXOS;(IOS, NXOS);;
+;;;;
+Interface name;Usage;"VLAN(s)/""Source"" port (for port migration)";Uplink to (for uplink)/MAC address (for user with static MAC)/Source configuration file (for port migration);Description
+Ethernet1/44;Migration;TenGigabitEthernet1/0/2;switch1.txt;srv001_p2
+Ethernet101/1/46;Migration;GigabitEthernet2/0/13;switch2.txt;srv001_p3
+Ethernet101/1/44;Migration;GigabitEthernet1/0/11;switch1.txt;srv002_p1
+Ethernet101/1/45;Migration;GigabitEthernet1/0/18;switch1.txt;
+Ethernet101/1/18;Uplink;1,50;CORE01;
+Ethernet101/1/19;Server;122;;srv001_p1
+Ethernet101/1/20;Unused;;;asa_eth0/0
+Ethernet101/1/21;User;140;c0ff.eec0.ffee;asa_eth0/1
+Ethernet101/1/22;User;150;;asa_eth0/2

@@ -1,0 +1,712 @@
+=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2019.05.08 17:52:50 =~=~=~=~=~=~=~=~=~=~=~=
+term len 0
+netswl2#sh run
+Building configuration...
+
+Current configuration : 15232 bytes
+!
+! Last configuration change at 10:03:12 CET Wed May 8 2019 by root
+! NVRAM config last updated at 10:03:14 CET Wed May 8 2019 by root
+!
+version 12.2
+no service pad
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service sequence-numbers
+!
+hostname netswl2
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 64000 warnings
+logging rate-limit 100 except critical
+enable secret 5 $1$Xb.9$i10QJyCyARCVFEfyWtzsz0
+!
+username root secret 5 $1$sJNj$r5CLfucYRacbD/8qqe7UZ1
+!
+!
+aaa new-model
+!
+!
+aaa authentication login default local enable
+aaa authentication enable default enable
+!
+!
+!
+aaa session-id common
+clock timezone CET 1
+clock summer-time CET recurring last Sun Mar 2:00 last Sun Oct 3:00
+switch 1 provision ws-c3750e-24td
+system mtu routing 1500
+!
+!
+no ip domain-lookup
+ip domain-name ec.europa.eu
+udld aggressive
+
+!
+!
+crypto pki trustpoint TP-self-signed-2133364608
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2133364608
+ revocation-check none
+ rsakeypair TP-self-signed-2133364608
+!
+!
+crypto pki certificate chain TP-self-signed-2133364608
+ certificate self-signed 01
+  3082023F 308201A8 A0030201 02020101 300D0609 2A864886 F70D0101 04050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 32313333 33363436 3038301E 170D3933 30333031 30303031 
+  34305A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 31333333 
+  36343630 3830819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100A29E D1CFF339 C297EA05 FA153EAC C65477E1 61D51725 14DB7888 DDE1047B 
+  52763DF6 1C6D3AC1 8B5A9FA5 F022A2E7 FD740C86 6F7A0BEA D7C341D4 E24D2B5F 
+  09DD64ED 621B23B8 ABF2CBAA 743377F9 5284E6F8 4D149B0D 3EB51B4A FCC22FDB 
+  7F8733C5 6A93D675 7B58697A A5BBE09B FC195DA1 7308C899 7AC70A71 44114BA0 
+  B3410203 010001A3 67306530 0F060355 1D130101 FF040530 030101FF 30120603 
+  551D1104 0B300982 07537769 7463682E 301F0603 551D2304 18301680 14266023 
+  89006C22 F18ACE2A DDE47FEC 00966ED5 DE301D06 03551D0E 04160414 26602389 
+  006C22F1 8ACE2ADD E47FEC00 966ED5DE 300D0609 2A864886 F70D0101 04050003 
+  8181005B B60A3DD6 CF67295E 0F478C6D 7045D9E6 9429CE0C B11E8CCD EDE8D7F1 
+  E7D00BF5 91DB48BF EB4DFF01 E606FC60 DBAF7FE7 D2A43CF7 4C267A64 A8ED9053 
+  86F50F28 48E3F10A 00910EFA AD561997 54A31D76 701BCDAE F35F8B72 25087F84 
+  F7450204 9E436F8C 7A102906 E31172CD DC678FD3 72B86C2F 5A336EF3 03BDDD79 70B487
+  quit
+!
+spanning-tree mode rapid-pvst
+spanning-tree loopguard default
+spanning-tree portfast default
+spanning-tree portfast bpduguard default
+no spanning-tree optimize bpdu transmission
+spanning-tree extend system-id
+spanning-tree pathcost method long
+spanning-tree vlan 1,50,112,116,120-122,124-125,160-167,500,700 priority 12288
+!
+!
+!
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+errdisable recovery cause link-flap
+errdisable recovery cause psecure-violation
+!
+vlan internal allocation policy ascending
+!
+ip ssh time-out 60
+!
+!
+interface Port-channel21
+ description trunk to netswL1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,17-127,139-142,149-158,160-167,236,500,616,618
+ switchport trunk allowed vlan add 622,700,701,913,914
+ switchport mode trunk
+ switchport nonegotiate
+ speed 1000
+ duplex full
+ storm-control broadcast level 10.00
+ storm-control action trap
+ spanning-tree portfast disable
+ spanning-tree bpduguard disable
+ spanning-tree link-type point-to-point
+!
+interface Port-channel29
+ switchport access vlan 139
+ switchport mode access
+!
+interface FastEthernet0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/0/1
+ description trunk to netswL1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,17-127,139-142,149-158,160-167,236,500,616,618
+ switchport trunk allowed vlan add 622,700,701,913,914
+ switchport mode trunk
+ switchport nonegotiate
+ speed 1000
+ duplex full
+ no mdix auto
+ storm-control broadcast level 10.00
+ storm-control action trap
+ spanning-tree portfast disable
+ spanning-tree bpduguard disable
+ spanning-tree link-type point-to-point
+ channel-group 21 mode desirable
+!
+interface GigabitEthernet1/0/2
+ description trunk to netswL1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,17-127,139-142,149-158,160-167,236,500,616,618
+ switchport trunk allowed vlan add 622,700,701,913,914
+ switchport mode trunk
+ switchport nonegotiate
+ speed 1000
+ duplex full
+ no mdix auto
+ storm-control broadcast level 10.00
+ storm-control action trap
+ spanning-tree portfast disable
+ spanning-tree bpduguard disable
+ spanning-tree link-type point-to-point
+ channel-group 21 mode desirable
+!
+interface GigabitEthernet1/0/3
+ switchport access vlan 913
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no cdp enable
+!
+interface GigabitEthernet1/0/4
+ description Geant router
+ switchport access vlan 802
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ no cdp enable
+ spanning-tree bpduguard disable
+!
+interface GigabitEthernet1/0/5
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/6
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/7
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+ channel-group 29 mode active
+!
+interface GigabitEthernet1/0/8
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+ channel-group 29 mode active
+!
+interface GigabitEthernet1/0/9
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/10
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/11
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/12
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/13
+ switchport access vlan 914
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/14
+!
+interface GigabitEthernet1/0/15
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/16
+ switchport access vlan 125
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/17
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,50,162,500,700,913,914
+ switchport mode trunk
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/18
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,50,112,125,139-142,149-158,162,500,700
+ switchport mode trunk
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/19
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/20
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/21
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/22
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/23
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ shutdown
+ speed 1000
+ duplex full
+ no mdix auto
+ no cdp enable
+!
+interface GigabitEthernet1/0/24
+ description disabled
+ switchport access vlan 999
+ switchport mode access
+ switchport nonegotiate
+ switchport port-security aging time 1
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ no logging event link-status
+ shutdown
+ speed 1000
+ duplex full
+ no snmp trap link-status
+ no mdix auto
+ storm-control broadcast level 0.10
+ storm-control action trap
+ no cdp enable
+!
+interface GigabitEthernet1/0/25
+!
+interface GigabitEthernet1/0/26
+!
+interface GigabitEthernet1/0/27
+!
+interface GigabitEthernet1/0/28
+!
+interface TenGigabitEthernet1/0/1
+ description trunk to netswT4
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,50,112,116,120,122,124-127,139-142,149-158
+ switchport trunk allowed vlan add 160-167,236,500,616,618,622,700,701,802
+ switchport trunk allowed vlan add 913-915
+ switchport mode trunk
+ switchport nonegotiate
+ storm-control broadcast level 10.00
+ storm-control action trap
+ spanning-tree portfast disable
+ spanning-tree bpduguard disable
+ spanning-tree link-type point-to-point
+!
+interface TenGigabitEthernet1/0/2
+ description s-jrcgeevmc105P_4-Nfs
+ switchport access vlan 913
+ switchport mode access
+ switchport nonegotiate
+ no cdp enable
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan50
+ ip address 172.17.125.79 255.255.255.0
+ no ip route-cache
+ no ip mroute-cache
+!
+ip classless
+no ip http server
+no ip http secure-server
+!
+logging history size 10
+logging history informational
+logging 172.17.125.8
+logging 172.17.125.9
+access-list 1300 permit 172.17.125.88
+access-list 1300 permit 172.17.125.89
+access-list 1300 permit 172.17.125.4
+access-list 1300 permit 172.17.125.8
+access-list 1300 permit 172.17.125.9
+access-list 120 permit ip host 172.17.125.4 any
+access-list 120 permit ip host 172.17.125.8 any
+access-list 120 permit ip host 172.17.125.7 any
+snmp-server community P0s31d0n RO 1300
+snmp-server community D10nysus RW 1300
+snmp-server location IRMM-Geel
+snmp-server contact Patrick Gysens
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps tty
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps bridge newroot topologychange
+snmp-server enable traps syslog
+snmp-server enable traps vtp
+snmp-server enable traps vlancreate
+snmp-server enable traps vlandelete
+snmp-server enable traps port-security
+snmp-server enable traps envmon fan shutdown supply temperature status
+snmp-server enable traps vlan-membership
+snmp-server host 172.17.125.5 D10nysus 
+!
+banner exec ^C
+*******************************************************************************
+**                                                                           **
+**                       UNAUTHORISED ACCESS PROHIBITED                      **
+**                          YOUR SESSION IS RECORDED                         **
+**                                                                           **
+*******************************************************************************
+^C
+banner login ^C
+*******************************************************************************
+*                        UNAUTHORISED ACCESS PROHIBITED                       * 
+* This system is for the use of authorised users only. Individuals using this *
+* computer system without authority, or in excess of their authority, are     *
+* subject to having all of their activities on this system monitored and      *
+* recorded by system personnel.                                               *
+*                                                                             *
+* In the course of monitoring individuals improperly using this system, or in *
+* the course of system maintenance, the activities of authorised users may    *
+* also be monitored.                                                          *
+*                                                                             *
+* Anyone using this system expressly consents to such monitoring and is       *
+* advised that if such monitoring reveals possible evidence of criminal       *
+* activity, system personnel may provide evidence of such monitoring to       *
+* security officials.                                                         *
+*                                                                             *
+* The above notice also applies when using this system, or parts of it, to    *
+* gain access to other systems.                                               *
+*******************************************************************************
+^C
+!
+line con 0
+line vty 0 4
+ access-class 120 in
+line vty 5 15
+ access-class 120 in
+!
+ntp clock-period 36026194
+ntp server 172.17.125.8
+end
+
+netswl2#sh vlan
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gi1/0/14, Gi1/0/17, Gi1/0/18
+50   management                       active    
+112  COR                              active    
+116  DAA                              active    
+120  GSZ                              active    
+121  WSZ                              active    
+122  SHES                             active    
+124  PSZ                              active    
+125  MGMT                             active    Gi1/0/16
+126  DMRZ                             active    
+127  DMZ                              active    
+128  PR-DMZ                           active    
+129  WAP                              active    
+139  Geel_DC_mgmt                     active    
+140  Geel_DC                          active    
+141  PSZ2                             active    
+142  P-MGMT                           active    
+143  SPARE6                           active    
+144  SPARE7                           active    
+145  ONEJRC-Service                   active    
+146  ONEJRC-Management                active    
+147  ONEJRC-Frontend                  active    
+148  ONEJRC-Backend                   active    
+149  SHES_new                         active    
+150  SID                              active    
+151  KNOTTS                           active    
+152  SN3S                             active    
+153  SFB                              active    
+154  SM                               active    
+155  HNWL                             active    
+156  ELCT                             active    
+157  VC                               active    
+158  PADS-New                         active    
+159  guards                           active    
+160  LAB2                             active    
+161  LAB4                             active    
+162  LAB5                             active    
+163  LAB8                             active    
+164  LAB3                             active    
+165  PADS                             active    
+166  SPARE2                           active    
+167  SPARE3                           active    
+192  VLAN0192                         active    
+236  I-SITE                           active    
+500  RSPAN                            active    
+616  ONEJRC-Servers                   active    
+618  ONEJRC-Cli_Int                   active    
+622  ONEJRC-Cli_No_Int                active    
+700  PASZ                             active    
+701  Siemens-BMS                      active    
+799  InterFW_Mgmt                     active    
+800  EXT192                           active    
+801  EXT192-ES                        active    
+802  EXT139                           active    Gi1/0/4
+803  EXT139-ES                        active    
+804  FW-DMZ                           active    
+901  SYNC                             active    
+912  VLAN0912                         active    
+913  NFS                              active    Gi1/0/3, Te1/0/2
+914  PS-L2-NFS                        active    Gi1/0/13
+915  Vmotion                          active    
+916  Snapmirror                       active    
+940  FW_Failover                      active    
+952  SyslogMon                        active    
+955  FW_CoreSW                        active    
+999  VLAN0999                         active    Gi1/0/5, Gi1/0/6, Gi1/0/7
+                                                Gi1/0/8, Gi1/0/9, Gi1/0/10
+                                                Gi1/0/11, Gi1/0/12, Gi1/0/15
+                                                Gi1/0/19, Gi1/0/20, Gi1/0/21
+                                                Gi1/0/22, Gi1/0/23, Gi1/0/24
+1002 fddi-default                     act/unsup 
+1003 token-ring-default               act/unsup 
+1004 fddinet-default                  act/unsup 
+1005 trnet-default                    act/unsup 
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        0      0   
+50   enet  100050     1500  -      -      -        -    -        0      0   
+112  enet  100112     1500  -      -      -        -    -        0      0   
+116  enet  100116     1500  -      -      -        -    -        0      0   
+120  enet  100120     1500  -      -      -        -    -        0      0   
+121  enet  100121     1500  -      -      -        -    -        0      0   
+122  enet  100122     1500  -      -      -        -    -        0      0   
+124  enet  100124     1500  -      -      -        -    -        0      0   
+125  enet  100125     1500  -      -      -        -    -        0      0   
+126  enet  100126     1500  -      -      -        -    -        0      0   
+127  enet  100127     1500  -      -      -        -    -        0      0   
+128  enet  100128     1500  -      -      -        -    -        0      0   
+129  enet  100129     1500  -      -      -        -    -        0      0   
+139  enet  100139     1500  -      -      -        -    -        0      0   
+140  enet  100140     1500  -      -      -        -    -        0      0   
+141  enet  100141     1500  -      -      -        -    -        0      0   
+142  enet  100142     1500  -      -      -        -    -        0      0   
+143  enet  100143     1500  -      -      -        -    -        0      0   
+144  enet  100144     1500  -      -      -        -    -        0      0   
+145  enet  100145     1500  -      -      -        -    -        0      0   
+146  enet  100146     1500  -      -      -        -    -        0      0   
+147  enet  100147     1500  -      -      -        -    -        0      0   
+148  enet  100148     1500  -      -      -        -    -        0      0   
+149  enet  100149     1500  -      -      -        -    -        0      0   
+150  enet  100150     1500  -      -      -        -    -        0      0   
+151  enet  100151     1500  -      -      -        -    -        0      0   
+152  enet  100152     1500  -      -      -        -    -        0      0   
+153  enet  100153     1500  -      -      -        -    -        0      0   
+154  enet  100154     1500  -      -      -        -    -        0      0   
+155  enet  100155     1500  -      -      -        -    -        0      0   
+156  enet  100156     1500  -      -      -        -    -        0      0   
+157  enet  100157     1500  -      -      -        -    -        0      0   
+158  enet  100158     1500  -      -      -        -    -        0      0   
+159  enet  100159     1500  -      -      -        -    -        0      0   
+160  enet  100160     1500  -      -      -        -    -        0      0   
+161  enet  100161     1500  -      -      -        -    -        0      0   
+162  enet  100162     1500  -      -      -        -    -        0      0   
+163  enet  100163     1500  -      -      -        -    -        0      0   
+164  enet  100164     1500  -      -      -        -    -        0      0   
+165  enet  100165     1500  -      -      -        -    -        0      0   
+166  enet  100166     1500  -      -      -        -    -        0      0   
+167  enet  100167     1500  -      -      -        -    -        0      0   
+192  enet  100192     1500  -      -      -        -    -        0      0   
+236  enet  100236     1500  -      -      -        -    -        0      0   
+500  enet  100500     1500  -      -      -        -    -        0      0   
+616  enet  100616     1500  -      -      -        -    -        0      0   
+618  enet  100618     1500  -      -      -        -    -        0      0   
+622  enet  100622     1500  -      -      -        -    -        0      0   
+700  enet  100700     1500  -      -      -        -    -        0      0   
+701  enet  100701     1500  -      -      -        -    -        0      0   
+799  enet  100799     1500  -      -      -        -    -        0      0   
+800  enet  100800     1500  -      -      -        -    -        0      0   
+801  enet  100801     1500  -      -      -        -    -        0      0   
+802  enet  100802     1500  -      -      -        -    -        0      0   
+803  enet  100803     1500  -      -      -        -    -        0      0   
+804  enet  100804     1500  -      -      -        -    -        0      0   
+901  enet  100901     1500  -      -      -        -    -        0      0   
+912  enet  100912     1500  -      -      -        -    -        0      0   
+913  enet  100913     1500  -      -      -        -    -        0      0   
+914  enet  100914     1500  -      -      -        -    -        0      0   
+915  enet  100915     1500  -      -      -        -    -        0      0   
+916  enet  100916     1500  -      -      -        -    -        0      0   
+940  enet  100940     1500  -      -      -        -    -        0      0   
+952  enet  100952     1500  -      -      -        -    -        0      0   
+955  enet  100955     1500  -      -      -        -    -        0      0   
+999  enet  100999     1500  -      -      -        -    -        0      0   
+1002 fddi  101002     1500  -      -      -        -    -        0      0   
+1003 tr    101003     1500  -      -      -        -    srb      0      0   
+1004 fdnet 101004     1500  -      -      -        ieee -        0      0   
+1005 trnet 101005     1500  -      -      -        ibm  -        0      0   
+
+Remote SPAN VLANs
+------------------------------------------------------------------------------
+500
+
+Primary Secondary Type              Ports
+------- --------- ----------------- ------------------------------------------
+
+netswl2#
